@@ -4,7 +4,7 @@
   "metadata": {
     "colab": {
       "provenance": [],
-      "authorship_tag": "ABX9TyNVFucL84glEMBry8X2JlP6",
+      "authorship_tag": "ABX9TyM/7xL8jq4pOlchb5LonDb3",
       "include_colab_link": true
     },
     "kernelspec": {
@@ -41,19 +41,18 @@
         "\n",
         "---\n",
         "\n",
-        "### 1. Introducción y Contexto de los Datos\n",
+        "### 1. Introducción\n",
+        "Para este informe se utiliza la base de microdatos correspondiente a **SB11 20231.TXT** (2023, primer semestre). En el sistema educativo colombiano, el corte 2023-1 agrupa principalmente a instituciones privadas con calendario escolar B (con una alta concentración de colegios bilingües y técnicos de centros urbanos como Cali, Bogotá y Medellín), además de bachilleres que presentan la prueba de validación individual.\n",
         "\n",
-        "Las pruebas de Estado administradas por el Instituto Colombiano para la Evaluación de la Educación (ICFES) constituyen el instrumento censal oficial para el monitoreo de la calidad de la educación media en Colombia. Para este informe se utiliza la base de microdatos correspondiente a la cohorte **SB11 20231.TXT** (2023, primer semestre). En el sistema educativo colombiano, la cohorte 2023-1 agrupa predominantemente a instituciones no oficiales (privadas) con calendario escolar B (con una alta concentración de colegios bilingües y técnicos de centros urbanos como Cali, Bogotá y Medellín), además de bachilleres que presentan la prueba de validación individual.\n",
-        "\n",
-        "El objetivo central de este informe es determinar la capacidad explicativa y predictiva que poseen los puntajes de las cinco competencias núcleo evaluadas sobre el **Índice de Nivel Socioeconómico Individual (`ESTU_INSE_INDIVIDUAL`)**, comparar el ajuste inferencial de un modelo clásico de Regresión Lineal Múltiple frente a una Red Neuronal de Perceptrón Multicapa (MLPRegressor), e imputar estadísticamente las observaciones con datos faltantes.\n",
+        "El objetivo central de este informe es determinar la capacidad explicativa y predictiva que poseen los puntajes de las cinco competencias núcleo evaluadas sobre el **Índice de Nivel Socioeconómico Individual (`ESTU_INSE_INDIVIDUAL`)**, comparar el ajuste inferencial de un modelo clásico de Regresión Lineal Múltiple frente a una Red Neuronal de Perceptrón Multicapa, e imputar estadísticamente las observaciones con datos faltantes.\n",
         "\n",
         "Las variables empleadas en este estudio corresponden a:\n",
         "* **`ESTU_INSE_INDIVIDUAL` (Variable respuesta $Y$):** Variable continua sintética calculada por el ICFES mediante la Teoría de Respuesta al Ítem (TRI) a partir de la posesión de bienes durables en el hogar, servicios, hacinamiento, nivel educativo y ocupación de los padres.\n",
         "* **`PUNT_LECTURA_CRITICA` ($X_1$):** Puntaje obtenido en comprensión lectora analítica y filosófica (escala de 0 a 100).\n",
-        "* **`PUNT_MATEMATICAS` ($X_2$):** Puntaje obtenido en razonamiento cuantitativo y formulación matemática[cite: 1].\n",
-        "* **`PUNT_C_NATURALES` ($X_3$):** Puntaje obtenido en biología, física y química[cite: 1].\n",
-        "* **`PUNT_SOCIALES_CIUDADANAS` ($X_4$):** Puntaje en historia, geografía, constitución y competencias ciudadanas[cite: 1].\n",
-        "* **`PUNT_INGLES` ($X_5$):** Puntaje en comprensión y manejo del idioma inglés[cite: 1]."
+        "* **`PUNT_MATEMATICAS` ($X_2$):** Puntaje obtenido en razonamiento cuantitativo y formulación matemática.\n",
+        "* **`PUNT_C_NATURALES` ($X_3$):** Puntaje obtenido en biología, física y química.\n",
+        "* **`PUNT_SOCIALES_CIUDADANAS` ($X_4$):** Puntaje en historia, geografía, constitución y competencias ciudadanas.\n",
+        "* **`PUNT_INGLES` ($X_5$):** Puntaje en comprensión y manejo del idioma inglés."
       ],
       "metadata": {
         "id": "354IkIXNHNRt"
@@ -61,7 +60,7 @@
     },
     {
       "cell_type": "code",
-      "execution_count": 2,
+      "execution_count": null,
       "metadata": {
         "colab": {
           "base_uri": "https://localhost:8080/"
@@ -151,7 +150,7 @@
         "id": "5FX-YGu8939s",
         "outputId": "2bc60e10-5931-4a95-d04d-a3fa7f3f8a00"
       },
-      "execution_count": 3,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "stream",
@@ -166,14 +165,14 @@
     {
       "cell_type": "markdown",
       "source": [
-        "### 2. Metodología y Limpieza de Datos\n",
+        "### 2. Metodología y Limpieza\n",
         "\n",
-        "Siguiendo el criterio de depuración implementado en la Tarea 1 con las estadísticas oficiales, antes de cualquier estimación de parámetros o inferencia estadística se debe realizar la partición analítica de los datos faltantes:\n",
+        "Siguiendo el criterio de depuración pedido en la tarea, con las estadísticas oficiales, antes de cualquier estimación de parámetros o inferencia estadística se debe realizar la decisión analítica de los datos faltantes:\n",
         "\n",
-        "1. **Subconjunto de análisis completo (`icfes_sin_nan`):** Se construye a partir de los registros que tienen información completa y simultánea en la variable respuesta y en los 5 puntajes evaluados[cite: 1]. Se eliminan los valores perdidos (`NaN`) para evitar sesgos en el cálculo de los estimadores de momentos, de máxima verosimilitud y en la optimización del error cuadrático por mínimos cuadrados ordinarios (MCO)[cite: 28, 45].\n",
-        "2. **Subconjunto de imputación (`icfes_connan`):** Corresponde a aquellos estudiantes que presentaron válidamente todas las pruebas cognitivas ($X_1, \\dots, X_5$ completos), pero no cuentan con el registro del índice socioeconómico (`ESTU_INSE_INDIVIDUAL` es `NaN`). Este subconjunto no se descarta de la población, sino que será objeto de imputación mediante el modelo supervisado que presente el mejor ajuste.\n",
+        "1. **Subconjunto de análisis completo (`icfes_sin_nan`):** Se construye a partir de los registros que tienen información completa y simultánea en la variable respuesta y en los 5 puntajes evaluados. Se eliminan los valores perdidos (`NaN`) para evitar sesgos en el cálculo de los estimadores de momentos, de máxima verosimilitud y en la optimización del error cuadrático por mínimos cuadrados ordinarios (MCO).\n",
+        "2. **Subconjunto de imputación (`icfes_connan`):** Corresponde a aquellos estudiantes que presentaron válidamente todas las pruebas cognitivas ($X_1, \\dots, X_5$ completos), pero no cuentan con el registro del índice socioeconómico (`ESTU_INSE_INDIVIDUAL` es `NaN`). Este subconjunto no se descarta de la población, sino que será objeto de imputación mediante el modelo que presente el mejor ajuste.\n",
         "\n",
-        "Al igual que en las Estadísticas Vitales[cite: 5], la exclusión de registros faltantes en `icfes_sin_nan` garantiza que las estimaciones se sustenten en datos observados reales sin comprometer la consistencia asintótica de los estimadores[cite: 31]."
+        "Al igual que en las Estadísticas Vitales, la exclusión de registros faltantes en `icfes_sin_nan` garantiza que las estimaciones se sustenten en datos observados reales sin comprometer la consistencia de los estimadores"
       ],
       "metadata": {
         "id": "VtvPQ1qMHiXl"
@@ -212,7 +211,7 @@
         "id": "Zrc7IEAM-ZOp",
         "outputId": "e1132721-6e2a-408b-e646-89e2fec8759e"
       },
-      "execution_count": 4,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "display_data",
@@ -229,13 +228,13 @@
     {
       "cell_type": "markdown",
       "source": [
-        "### 3. Selección de Variables Explicativas\n",
+        "### 3. Selección de Variables\n",
         "\n",
-        "#### 3.1. Análisis Descriptivo Univariado: Diagramas de Dispersión\n",
-        "Tal como se establece en la metodología del curso para el estudio de distribuciones continuas (donde se contrasta descriptivamente la forma de los datos antes de pasar a la inferencia formal)[cite: 17, 24, 41], se realiza la inspección gráfica entre la variable respuesta `ESTU_INSE_INDIVIDUAL` ($Y$) y cada una de las variables explicativas ($X_j$) junto con la recta de ajuste de mínimos cuadrados[cite: 1]:\n",
+        "#### 3.1. Análisis Descriptivo con diagramas de Dispersión\n",
+        "Tal como sw viene haciendo en el curso para el estudio de distribuciones continuas analizamos descriptivamente la forma de los datos antes de pasar a la inferencia formal, se realiza la inspección gráfica entre la variable respuesta `ESTU_INSE_INDIVIDUAL` ($Y$) y cada una de las variables explicativas ($X_j$) junto con la recta de ajuste de mínimos cuadrados:\n",
         "\n",
-        "* **Comportamiento lineal:** En todas las disciplinas se observa una relación bivariada con pendiente positiva: a mayor puntaje alcanzado en la prueba, mayor es el índice socioeconómico medio estimado.\n",
-        "* **Dispersión y varianza del error:** El diagrama correspondiente a `PUNT_INGLES` exhibe la menor dispersión de los puntos alrededor de la recta estimada y la pendiente más pronunciada. En contraposición, áreas como `PUNT_C_NATURALES` y `PUNT_SOCIALES_CIUDADANAS` presentan nubes de puntos más difusas, indicando que una mayor proporción de su variabilidad no se vincula de forma univariada directa con el nivel socioeconómico."
+        "* **Comportamiento lineal:** En todas las disciplinas se observa una relación entre las variables con pendiente positiva: a mayor puntaje alcanzado en la prueba, mayor es el índice socioeconómico medio estimado.\n",
+        "* **Dispersión y varianza del error:** El diagrama correspondiente a `PUNT_INGLES` exhibe la menor dispersión de los puntos alrededor de la recta estimada y la pendiente más pronunciada. Además, áreas como `PUNT_C_NATURALES` y `PUNT_SOCIALES_CIUDADANAS` presentan nubes de puntos más difusas, indicando que una mayor proporción de su variabilidad no esta relacionada de manera directa con el indice socioeconomico."
       ],
       "metadata": {
         "id": "8r-q2Y_tHxsd"
@@ -271,7 +270,7 @@
         "id": "eeP7NyPo-eg5",
         "outputId": "978e4a1d-2cc2-41c4-bf01-8ce06c012a12"
       },
-      "execution_count": 5,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "display_data",
@@ -439,18 +438,18 @@
     {
       "cell_type": "markdown",
       "source": [
-        "#### 3.2. Coeficientes de Correlación: Pearson, Spearman y Kendall\n",
+        "#### 3.2. Coeficientes de Correlación\n",
         "\n",
-        "Para evaluar descriptiva e inferencialmente el grado de asociación sin restringirse únicamente al supuesto de normalidad bivariada, se calculan tres métricas de asociación[cite: 1]:\n",
-        "* **Coeficiente de Pearson ($r$):** Mide la fuerza de la asociación lineal paramétrica entre las variables continuas.\n",
-        "* **Coeficiente de Spearman ($\\rho$):** Medida no paramétrica basada en los rangos de las observaciones; evalúa si la relación es monótona creciente preservando la invarianza ante transformaciones de escala.\n",
-        "* **Coeficiente de Kendall ($\\tau$):** Evalúa la concordancia y discordancia entre pares de datos; es preferido en inferencia no paramétrica por su menor sesgo en muestras finitas y mejor aproximación asintótica.\n",
+        "Para evaluar descriptiva e inferencialmente el grado de asociación sin restringirse únicamente al supuesto de normalidad, se calculan tres métricas:\n",
+        "* **Coeficiente de Pearson ($r$):** Mide la \"fuerza\" de la asociación lineal paramétrica entre las variables continuas.\n",
+        "* **Coeficiente de Spearman ($\\rho$):** Medida basada en los rangos de las observaciones; evalúa si la relación es monótona creciente preservando la invarianza ante transformaciones de escala.\n",
+        "* **Coeficiente de Kendall ($\\tau$):** Evalúa la concordancia y discordancia entre pares de datos\n",
         "\n",
         "#### Interpretación de Resultados:\n",
-        "1. En las tres métricas se preserva de manera unívoca el mismo ordenamiento de asociación respecto a `ESTU_INSE_INDIVIDUAL`:\n",
+        "1. En las tres métricas se preserva de manera clara el mismo ordenamiento de asociación respecto a `ESTU_INSE_INDIVIDUAL`:\n",
         "   $$\\text{PUNT\\_INGLES} > \\text{PUNT\\_MATEMATICAS} > \\text{PUNT\\_LECTURA\\_CRITICA} \\approx \\text{PUNT\\_C\\_NATURALES} \\approx \\text{PUNT\\_SOCIALES\\_CIUDADANAS}$$\n",
-        "2. El coeficiente de Pearson para `PUNT_INGLES` supera sustancialmente al resto de componentes, ratificando que el dominio de una segunda lengua en el calendario B colombiano es el marcador con mayor dependencia respecto a la dotación socioeconómica del hogar.\n",
-        "3. La cercanía entre los coeficientes paramétricos ($r$) y no paramétricos ($\\rho$) evidencia que la asociación observada es genuinamente monótona y no está distorsionada por anomalías severas en los extremos de la muestra."
+        "2. El coeficiente de Pearson para `PUNT_INGLES` supera sustancialmente al resto de componentes, afianzando que el dominio de una segunda lengua en el calendario B colombiano es el marcador con mayor dependencia respecto a la condición socioeconómica del hogar.\n",
+        "3. La cercanía entre los coeficientes paramétricos ($r$) y no paramétricos ($\\rho$) evidencia que la asociación observada es monótona y no está alterada por valores extremos de la muestra."
       ],
       "metadata": {
         "id": "He7XOnMNH6fp"
@@ -496,7 +495,7 @@
         "id": "ebSmho_y-jHY",
         "outputId": "9ce7daa0-31a8-449f-c347-cad107587845"
       },
-      "execution_count": 6,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "stream",
@@ -739,7 +738,7 @@
         "\n",
         "En el modelo de regresión lineal múltiple con todas las variables explicativas:\n",
         "$$Y = \\beta_0 + \\beta_1 X_1 + \\beta_2 X_2 + \\beta_3 X_3 + \\beta_4 X_4 + \\beta_5 X_5 + \\varepsilon, \\quad \\varepsilon \\sim \\mathcal{N}(0, \\sigma^2)$$\n",
-        "el coeficiente de determinación $R^2_{\\text{full}}$ mide la proporción de la suma de cuadrados total ($\\text{SCT}$) explicada por la regresión[cite: 1, 29, 44]:\n",
+        "el coeficiente de determinación $R^2_{\\text{full}}$ mide la proporción de la suma de cuadrados total ($\\text{SCT}$) explicada por la regresión:\n",
         "$$R^2 = 1 - \\frac{\\text{SCE}}{\\text{SCT}} = \\frac{\\text{SCR}}{\\text{SCT}}$$\n",
         "\n",
         "Para cuantificar el aporte marginal de cada covariable, se sigue el procedimiento *Leave-One-Out*: se ajusta un modelo omitiendo una única covariable $X_j$ ($R^2_{-j}$) y se calcula la pérdida en capacidad explicativa:\n",
@@ -748,7 +747,7 @@
         "#### Conclusión del procedimiento:\n",
         "* La mayor contracción del coeficiente de determinación ocurre de manera categórica al retirar la variable **`PUNT_INGLES`** (mayor $\\Delta R^2$).\n",
         "* La segunda mayor pérdida explicativa se produce al prescindir de **`PUNT_MATEMATICAS`**.\n",
-        "* Al retirar disciplinas como Ciencias Naturales o Lectura Crítica, la contracción en $R^2$ es marginal debido a la colinealidad existente entre las competencias lectoras y ciudadanas.\n",
+        "* Al retirar disciplinas como Ciencias Naturales o Lectura Crítica, la contracción en $R^2$ es minimo debido a la colinealidad existente entre las competencias lectoras y ciudadanas.\n",
         "\n",
         "Por consiguiente, **las dos variables más explicativas seleccionadas formalmente** son:\n",
         "$$\\mathbf{X_1 = \\text{PUNT\\_INGLES}} \\quad \\text{y} \\quad \\mathbf{X_2 = \\text{PUNT\\_MATEMATICAS}}$$"
@@ -823,7 +822,7 @@
         "id": "LnMtQvl6-mNg",
         "outputId": "1f916117-0bf4-486c-8c8d-77d8022c4abd"
       },
-      "execution_count": 7,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "display_data",
@@ -842,12 +841,12 @@
       "source": [
         "#### 3.4. Diagrama del Plano de Regresión Múltiple en Tres Dimensiones\n",
         "\n",
-        "Se construye la superficie de regresión lineal ajustando la variable respuesta $Y$ (`ESTU_INSE_INDIVIDUAL`) en función de las dos variables explicativas dominantes seleccionadas: $X_1$ (`PUNT_INGLES`) y $X_2$ (`PUNT_MATEMATICAS`):\n",
+        "Se construye la superficie de regresión lineal ajustando la variable respuesta $Y$ (`ESTU_INSE_INDIVIDUAL`) en función de las dos variables explicativas seleccionadas anteriormente: $X_1$ (`PUNT_INGLES`) y $X_2$ (`PUNT_MATEMATICAS`):\n",
         "$$\\widehat{\\text{INSE}} = \\hat{\\beta}_0 + \\hat{\\beta}_{\\text{ing}}\\cdot \\text{PUNT\\_INGLES} + \\hat{\\beta}_{\\text{mat}}\\cdot \\text{PUNT\\_MATEMATICAS}$$\n",
         "\n",
         "#### Interpretación geométrica y estadística:\n",
-        "* **Orientación del plano:** La superficie ajustada presenta una marcada pendiente ascendente en el sentido de ambos ejes, con una inclinación significativamente más fuerte a lo largo del eje del puntaje de inglés, reflejando su mayor peso relativo ($\\hat{\\beta}_{\\text{ing}} > \\hat{\\beta}_{\\text{mat}}$).\n",
-        "* **Comportamiento de los residuos:** La nube de observaciones se distribuye de manera homogénea a ambos lados de la superficie plana estimada, sin mostrar curvaturas que sugieran términos polinomiales de orden superior indispensables en esta proyección bidimensional[cite: 46]."
+        "* **Orientación:** La superficie ajustada presenta una pendiente ascendente en el sentido de ambos ejes, con una inclinación significativamente más fuerte a lo largo del eje del puntaje de inglés, reflejando su mayor peso relativo ($\\hat{\\beta}_{\\text{ing}} > \\hat{\\beta}_{\\text{mat}}$).\n",
+        "* **Comportamiento de los residuos:** Los datos se agrupan de manera uniforme alrededor del plano y no se observan curvas evidentes, lo que confirma que una relación lineal describe bien el comportamiento sin complicar el modelo."
       ],
       "metadata": {
         "id": "NAEwSBUBIS-n"
@@ -914,7 +913,7 @@
         "id": "6Q_a5OO6-pBW",
         "outputId": "d2eeb888-e133-421b-ec62-2d62fcc7a085"
       },
-      "execution_count": 8,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "stream",
@@ -1143,7 +1142,7 @@
         "id": "h94IxtW4-za5",
         "outputId": "a540779b-93a4-42e0-b8f4-6161161124ab"
       },
-      "execution_count": 9,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "display_data",
@@ -1581,17 +1580,17 @@
     {
       "cell_type": "markdown",
       "source": [
-        "### 4. Implementación y Comparación de Modelos de Aprendizaje\n",
+        "### 4. Implementación y Comparación de Modelos\n",
         "\n",
-        "A partir del subconjunto sin valores faltantes (`icfes_sin_nan`), se dividió la muestra en un **80% de entrenamiento** y un **20% de prueba** utilizando la función `train_test_split`.\n",
+        "A partir del subconjunto sin valores faltantes (`icfes_sin_nan`), se dividió la muestra en un **80% de entrenamiento** y un **20% de prueba** utilizando la función `train_test_split`como se pidio en el archivo de la tarea ll.\n",
         "\n",
         "Se comparan dos metodologías estadísticas bajo las 5 variables explicativas:\n",
-        "1. **Regresión Lineal Múltiple (MCO / MV):** Bajo el supuesto de perturbaciones normales independientes $\\varepsilon_i \\sim \\mathcal{N}(0, \\sigma^2)$, los estimadores de MCO coinciden con los de Máxima Verosimilitud ($\\hat{\\beta}_{\\text{MV}}$)[cite: 44, 45]. Estos estimadores son insesgados ($E(\\hat{\\beta}) = \\beta$) y de varianza mínima (Teorema de Gauss-Markov)[cite: 30, 32].\n",
+        "1. **Regresión Lineal Múltiple (MCO / MV):** Bajo el supuesto de perturbaciones normales independientes $\\varepsilon_i \\sim \\mathcal{N}(0, \\sigma^2)$, los estimadores de MCO coinciden con los de Máxima Verosimilitud ($\\hat{\\beta}_{\\text{MV}}$). Estos estimadores son insesgados ($E(\\hat{\\beta}) = \\beta$) y de varianza mínima (Teorema de Gauss-Markov).\n",
         "2. **Perceptrón Multicapa (`MLPRegressor`):** Red neuronal profunda con 6 capas ocultas de 100 neuronas cada una, función de activación ReLU, tasa de aprendizaje con decaimiento `invscaling`, y optimización estocástica Adam. Para este algoritmo se aplicó estandarización $\\mathcal{N}(0, 1)$ sobre las variables independientes para garantizar la estabilidad numérica del gradiente.\n",
         "\n",
         "#### Diagnóstico del Ajuste y Criterio de Selección:\n",
-        "* **Compromiso Sesgo-Varianza:** La red neuronal MLP posee una cantidad masiva de parámetros libres (pesos y sesgos interconectados), lo cual le confiere la propiedad de aproximador universal, pero eleva sensiblemente el riesgo de sobreajuste (*overfitting*) en muestras moderadas. Por su parte, la Regresión Lineal Múltiple mantiene consistencia estricta entre el error de entrenamiento y de prueba[cite: 31].\n",
-        "* **Regla de decisión:** Conforme a la búsqueda de soluciones óptimas de la rúbrica, se selecciona para la imputación aquel modelo que minimice el Error Cuadrático Medio en la muestra de prueba ($\\min \\text{RMSE}_{\\text{test}}$). Si los errores de predicción son estadísticamente indistinguibles, la Navaja de Ockham (principio de parsimonia) favorece el modelo lineal clásico por su plena interpretabilidad teórica e inferencial."
+        "* **Compromiso Sesgo-Varianza:** La red neuronal MLP posee una cantidad masiva de parámetros libres, lo cual le confiere la propiedad de aproximador, pero eleva sensiblemente el riesgo de sobreajuste (*overfitting*) en muestras moderadas. Por su parte, la Regresión Lineal Múltiple mantiene consistencia estricta entre el error de entrenamiento y de prueba.\n",
+        "* **Regla de decisión:** Conforme a la búsqueda de soluciones óptimas que se piden para el proyecto, se selecciona para la imputación aquel modelo que minimice el Error Cuadrático Medio en la muestra de prueba ($\\min \\text{RMSE}_{\\text{test}}$). Si los errores de predicción son estadísticamente indistinguibles, se favorece el modelo lineal clásico por su interpretabilidad teórica e inferencial."
       ],
       "metadata": {
         "id": "gek3KHMuJOJ9"
@@ -1631,7 +1630,7 @@
         "id": "oFvsLsc_AKDN",
         "outputId": "d7580d67-b25c-416a-b8a5-c4a3175d4453"
       },
-      "execution_count": 10,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "stream",
@@ -1653,14 +1652,16 @@
         "$$\\widehat{\\text{INSE}}_i = f\\left(\\text{Lectura}_i, \\text{Matemáticas}_i, \\text{Naturales}_i, \\text{Sociales}_i, \\text{Inglés}_i\\right)$$\n",
         "\n",
         "#### Evaluación de la Imputación:\n",
-        "* **Propiedades de los valores generados:** Los puntajes imputados conservan la escala esperada del ICFES para el INSE individual (rango continuo centrado alrededor de 50 a 70 puntos para este segmento poblacional), sin truncamientos artificiales ni valores imposibles[cite: 4].\n",
-        "* **Validez de la técnica:** Al basar la imputación en una función condicionada al vector multivariado de aptitudes cognitivas reales del estudiante, se evita la distorsión que generaría una imputación simple por media muestral ($\\bar{y}$), la cual subestimaría la varianza de la población imputada[cite: 29].   ### 6. Predicciones en Casos de Interés: Estudiantes con Lectura Sobresaliente y Bajo Desempeño en Inglés\n",
+        "* **Propiedades de los valores generados:** Los puntajes imputados conservan la escala esperada del ICFES para este caso de INSE individual, sin truncamientos ni valores imposibles.\n",
+        "Al predecir el nivel socioeconómico a partir de las notas reales del estudiante en las cinco pruebas, se obtiene una estimación mucho más precisa que si simplemente se rellenara con el promedio general ($\\bar{y}$), lo cual reduciría artificialmente la variabilidad de los datos  \n",
         "\n",
-        "Siguiendo el análisis sugerido en la guía[cite: 2], se aíslan los evaluados que presentan un desempeño sobresaliente en **Lectura Crítica** ($\\ge 70$ puntos) y simultáneamente un puntaje deficiente en **Inglés** ($\\le 45$ puntos)[cite: 2].\n",
+        "### 6. Predicciones en Casos de Interés: Estudiantes con Lectura Sobresaliente y Bajo Desempeño en Inglés\n",
+        "\n",
+        "Siguiendo el análisis sugerido en la guía, se aíslan los evaluados que presentan un desempeño sobresaliente en **Lectura Crítica** ($\\ge 70$ puntos) y simultáneamente un puntaje deficiente en **Inglés** ($\\le 45$ puntos).\n",
         "\n",
         "#### Interpretación Estadística y Sociológica del Perfil:\n",
-        "1. **Brecha de Capital Lingüístico vs. Habilidad Verbal:** En Colombia, una competencia lectora sobresaliente en español puede desarrollarse a través de la formación escolar pública regular y el hábito autónomo de lectura del evaluado. En cambio, el dominio avanzado del idioma inglés responde predominantemente a una exposición temprana en colegios privados bilingües de calendario B y entornos con recursos económicos suficientes para costear programas extracurriculares.\n",
-        "2. **Impacto sobre el INSE:** Cuando el modelo evalúa este perfil divergente, la predicción de `ESTU_INSE_INDIVIDUAL` decae significativamente en comparación con estudiantes de similar rendimiento global cuyos puntajes de inglés son altos. Esto comprueba empíricamente que el puntaje de inglés actúa en el modelo de regresión como una variable instrumental de la capacidad adquisitiva y el estrato socioeconómico familiar."
+        "1. **Brechas :** En Colombia, una competencia lectora sobresaliente en español puede desarrollarse a través de la formación escolar pública regular y el hábito autónomo de lectura del evaluado. En cambio, el dominio avanzado del idioma inglés responde predominantemente a una exposición temprana en colegios privados bilingües de calendario B y entornos con recursos económicos suficientes para costear programas extracurriculares.\n",
+        "2. **Impacto sobre el INSE:** Cuando el modelo evalúa este perfil, la predicción de `ESTU_INSE_INDIVIDUAL` decae significativamente en comparación con estudiantes de similar rendimiento global cuyos puntajes de inglés son altos. Esto comprueba empíricamente que el puntaje de inglés actúa en el modelo de regresión como una variable instrumental de la capacidad adquisitiva y el estrato socioeconómico familiar."
       ],
       "metadata": {
         "id": "k7BiM759JUcG"
@@ -1712,7 +1713,7 @@
         "id": "MLBx_NzFAP0K",
         "outputId": "2a831d95-c1bf-4784-876b-080c24ccb94d"
       },
-      "execution_count": 11,
+      "execution_count": null,
       "outputs": [
         {
           "output_type": "display_data",
@@ -1729,19 +1730,19 @@
     {
       "cell_type": "markdown",
       "source": [
-        "### 7. Perfil de Admitidos y Comparación con los Cortes de Admisión de la UIS\n",
+        "### 7. Comparación con los Cortes de Admisión de la UIS\n",
         "\n",
         "#### 7.1. Criterios de Selección y Ponderación UIS:\n",
-        "La Universidad Industrial de Santander no utiliza un promedio aritmético simple, sino que aplica ponderaciones diferenciadas sobre los puntajes del Saber 11 para cada programa de pregrado:\n",
-        "* **Medicina y Ciencias de la Salud:** Exigen los puntajes más altos del departamento de Santander (cortes ponderados superiores a 75–78 puntos, exigiendo desempeños sobresalientes en Biología/Química, Lectura y Matemáticas).\n",
-        "* **Ingenierías (Sistemas, Industrial, Mecánica, Química):** Concentran su ponderación en Matemáticas (35%) y Ciencias Naturales (25%), con cortes de admisión habitualmente situados entre 68 y 73 puntos ponderados.\n",
+        "La Universidad Industrial de Santander no utiliza un promedio aritmético sin más, sino que aplica ponderaciones diferenciadas sobre los puntajes del Saber 11 para cada programa de pregrado:\n",
+        "* **Medicina y Ciencias de la Salud:** Exigen los puntajes más altos de la universidad (cortes ponderados superiores a 75–78 puntos, exigiendo desempeños sobresalientes en Química, Lectura y Matemáticas).\n",
+        "* **Ingenierías :** Concentran su ponderación en Matemáticas (35%) y Ciencias Naturales (25%), con cortes de admisión habitualmente situados entre 68 y 73 puntos ponderados.\n",
         "* **Licenciaturas y Ciencias Humanas:** Asignan mayor relevancia a Lectura Crítica y Sociales y Ciudadanas, registrando cortes de ingreso entre 58 y 64 puntos ponderados.\n",
         "\n",
         "#### 7.2. Contraste de Hipótesis y Conclusiones Finales:\n",
         "Siguiendo el esquema analítico y las conclusiones formales de la Tarea 1[cite: 10]:\n",
-        "* **Distribución del INSE en los Admitidos:** Al comparar las curvas de densidad de probabilidad estimadas por Kernel frente a las densidades paramétricas normales[cite: 18, 41], se evidencia que la distribución del nivel socioeconómico de los aspirantes con puntajes suficientes para ingresar a programas de alta demanda en la UIS está fuertemente desplazada hacia la derecha (niveles socioeconómicos medio-altos y altos).\n",
+        "* **Distribución del INSE en los Admitidos:** Al comparar las curvas de densidad de probabilidad estimadas por Kernel frente a las normales, se evidencia que la distribución del nivel socioeconómico de los aspirantes con puntajes suficientes para ingresar a programas de alta demanda en la UIS está fuertemente desplazada hacia la derecha ,es decir, niveles socioeconómicos medio-altos y altos.\n",
         "* **Efecto Filtro de las Matemáticas y el Inglés:** Dado que `PUNT_MATEMATICAS` y `PUNT_INGLES` son las dos variables con mayor asociación con el INSE ($R^2$ marginal más alto), las exigencias de corte elevado en razonamiento cuantitativo y pruebas técnicas terminan seleccionando de manera indirecta a bachilleres provenientes de contextos socioeconómicos más favorecidos.\n",
-        "* **Justificación de Políticas Institucionales:** Estos resultados sustentan cuantitativamente la necesidad de los programas de admisión especial de la UIS (cupos para bachilleres de municipios no certificados de Santander, comunidades indígenas y víctimas del conflicto), garantizando el acceso a la educación superior pública independientemente de las disparidades socioeconómicas estructurales del país."
+        "* **Justificación de Políticas Institucionales:** Estos resultados sustentan cuantitativamente la necesidad de los programas de admisión especial de la UIS, garantizando el acceso a la educación superior pública independientemente de las disparidades socioeconómicas estructurales del país."
       ],
       "metadata": {
         "id": "TuwAFkRAJDwT"
